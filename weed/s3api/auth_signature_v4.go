@@ -23,6 +23,7 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"encoding/hex"
+	"github.com/seaweedfs/seaweedfs/weed/glog"
 	"io"
 	"net/http"
 	"net/url"
@@ -606,6 +607,7 @@ func extractSignedHeaders(signedHeaders []string, r *http.Request) (http.Header,
 			// calculation to be compatible with such clients.
 			extractedSignedHeaders.Set(header, strconv.FormatInt(r.ContentLength, 10))
 		default:
+			glog.V(3).Infof("sigV4 unsigned header: %s", header)
 			return nil, s3err.ErrUnsignedHeaders
 		}
 	}
