@@ -175,6 +175,7 @@ func collectVolumeReplicaLocations(topologyInfo *master_pb.TopologyInfo) (map[ui
 		loc := newLocation(dc, string(rack), dn)
 		for _, diskInfo := range dn.DiskInfos {
 			for _, v := range diskInfo.VolumeInfos {
+				v.ReplicaPlacement = 10
 				volumeReplicas[v.Id] = append(volumeReplicas[v.Id], &VolumeReplica{
 					location: &loc,
 					info:     v,
@@ -252,7 +253,7 @@ func (c *commandVolumeFixReplication) fixUnderReplicatedVolumes(commandEnv *Comm
 func (c *commandVolumeFixReplication) fixOneUnderReplicatedVolume(commandEnv *CommandEnv, writer io.Writer, takeAction bool, volumeReplicas map[uint32][]*VolumeReplica, vid uint32, allLocations []location) error {
 	replicas := volumeReplicas[vid]
 	replica := pickOneReplicaToCopyFrom(replicas)
-	replicaPlacement, _ := super_block.NewReplicaPlacementFromByte(byte(replica.info.ReplicaPlacement))
+	replicaPlacement, _ := super_block.NewReplicaPlacementFromByte(byte(10))
 	foundNewLocation := false
 	hasSkippedCollection := false
 	keepDataNodesSorted(allLocations, types.ToDiskType(replica.info.DiskType))
