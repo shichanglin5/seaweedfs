@@ -94,7 +94,7 @@ func (c *commandVolumeFixReplication) Do(args []string, commandEnv *CommandEnv, 
 		var underReplicatedVolumeIds, overReplicatedVolumeIds, misplacedVolumeIds []uint32
 		for vid, replicas := range volumeReplicas {
 			replica := replicas[0]
-			replicaPlacement, _ := super_block.NewReplicaPlacementFromByte(byte(replica.info.ReplicaPlacement))
+			replicaPlacement, _ := super_block.NewReplicaPlacementFromByte(byte(10))
 			if replicaPlacement.GetCopyCount() > len(replicas) {
 				underReplicatedVolumeIds = append(underReplicatedVolumeIds, vid)
 			} else if replicaPlacement.GetCopyCount() < len(replicas) {
