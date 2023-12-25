@@ -4,13 +4,11 @@ import (
 	"bytes"
 	"flag"
 	"fmt"
-	"io"
-	"regexp"
-	"strings"
-
 	"github.com/seaweedfs/seaweedfs/weed/filer"
 	"github.com/seaweedfs/seaweedfs/weed/pb/filer_pb"
 	"github.com/seaweedfs/seaweedfs/weed/storage/super_block"
+	"io"
+	"regexp"
 )
 
 func init() {
@@ -85,11 +83,6 @@ func (c *commandFsConfigure) Do(args []string, commandEnv *CommandEnv, writer io
 			DataCenter:        *dataCenter,
 			Rack:              *rack,
 			DataNode:          *dataNode,
-		}
-
-		// check collection
-		if *collection != "" && strings.HasPrefix(*locationPrefix, "/buckets/") {
-			return fmt.Errorf("one s3 bucket goes to one collection and not customizable")
 		}
 
 		// check replication
