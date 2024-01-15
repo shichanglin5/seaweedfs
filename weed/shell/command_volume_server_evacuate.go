@@ -127,7 +127,7 @@ func (c *commandVolumeServerEvacuate) evacuateNormalVolumes(commandEnv *CommandE
 					}
 				}
 			}
-			volumeReplicas, _ := collectVolumeReplicaLocations(c.topologyInfo)
+			volumeReplicas, _ := collectVolumeReplicaLocations(c.topologyInfo, nil)
 			for _, vol := range diskInfo.VolumeInfos {
 				hasMoved, err := moveAwayOneNormalVolume(commandEnv, volumeReplicas, vol, thisNode, otherNodes, applyChange)
 				if err != nil {
