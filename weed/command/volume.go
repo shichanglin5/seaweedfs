@@ -37,6 +37,7 @@ var (
 )
 
 type VolumeServerOptions struct {
+	preallocate               *bool
 	port                      *int
 	portGrpc                  *int
 	publicPort                *int
@@ -75,6 +76,7 @@ type VolumeServerOptions struct {
 
 func init() {
 	cmdVolume.Run = runVolume // break init cycle
+	v.preallocate = cmdVolume.Flag.Bool("preallocate", true, "volume size preallocate")
 	v.port = cmdVolume.Flag.Int("port", 8080, "http listen port")
 	v.portGrpc = cmdVolume.Flag.Int("port.grpc", 0, "grpc listen port")
 	v.publicPort = cmdVolume.Flag.Int("port.public", 0, "port opened to public")
@@ -263,6 +265,7 @@ func (v VolumeServerOptions) startVolumeServer(volumeFolders, maxVolumeCounts, v
 		*v.hasSlowRead,
 		*v.readBufferSizeMB,
 		*v.ldbTimeout,
+		*v.preallocate,
 	)
 	// starting grpc server
 	grpcS := v.startGrpcService(volumeServer)

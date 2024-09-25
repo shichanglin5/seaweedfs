@@ -58,6 +58,7 @@ type Store struct {
 	MasterAddress       pb.ServerAddress
 	grpcDialOption      grpc.DialOption
 	volumeSizeLimit     uint64 // read from the master
+	preallocate         bool   // init from command args
 	Ip                  string
 	Port                int
 	GrpcPort            int
@@ -79,9 +80,8 @@ func (s *Store) String() (str string) {
 	return
 }
 
-func NewStore(grpcDialOption grpc.DialOption, ip string, port int, grpcPort int, publicUrl string, dirnames []string, maxVolumeCounts []int32,
-	minFreeSpaces []util.MinFreeSpace, idxFolder string, needleMapKind NeedleMapKind, diskTypes []DiskType, ldbTimeout int64) (s *Store) {
-	s = &Store{grpcDialOption: grpcDialOption, Port: port, Ip: ip, GrpcPort: grpcPort, PublicUrl: publicUrl, NeedleMapKind: needleMapKind}
+func NewStore(grpcDialOption grpc.DialOption, ip string, port int, grpcPort int, publicUrl string, dirnames []string, maxVolumeCounts []int32, minFreeSpaces []util.MinFreeSpace, idxFolder string, needleMapKind NeedleMapKind, diskTypes []DiskType, ldbTimeout int64, preallocate bool) (s *Store) {
+	s = &Store{grpcDialOption: grpcDialOption, Port: port, Ip: ip, GrpcPort: grpcPort, PublicUrl: publicUrl, NeedleMapKind: needleMapKind, preallocate: preallocate}
 	s.Locations = make([]*DiskLocation, 0)
 
 	var wg sync.WaitGroup
@@ -617,8 +617,12 @@ func (s *Store) MaybeAdjustVolumeMax() (hasChanges bool) {
 		if diskLocation.OriginalMaxVolumeCount == 0 {
 			currentMaxVolumeCount := atomic.LoadInt32(&diskLocation.MaxVolumeCount)
 			diskStatus := stats.NewDiskStatus(diskLocation.Directory)
-			unusedSpace := diskLocation.UnUsedSpace(volumeSizeLimit)
-			unclaimedSpaces := int64(diskStatus.Free) - int64(unusedSpace)
+			var unusedSpace uint64 = 0
+			unclaimedSpaces := int64(diskStatus.Free)
+			if !s.preallocate {
+				unusedSpace = diskLocation.UnUsedSpace(volumeSizeLimit)
+				unclaimedSpaces -= int64(unusedSpace)
+			}
 			volCount := diskLocation.VolumesLen()
 			maxVolumeCount := int32(volCount)
 			if unclaimedSpaces > int64(volumeSizeLimit) {

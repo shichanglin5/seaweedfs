@@ -52,25 +52,7 @@ type VolumeServer struct {
 	stopChan                chan bool
 }
 
-func NewVolumeServer(adminMux, publicMux *http.ServeMux, ip string,
-	port int, grpcPort int, publicUrl string,
-	folders []string, maxCounts []int32, minFreeSpaces []util.MinFreeSpace, diskTypes []types.DiskType,
-	idxFolder string,
-	needleMapKind storage.NeedleMapKind,
-	masterNodes []pb.ServerAddress, pulseSeconds int,
-	dataCenter string, rack string,
-	whiteList []string,
-	fixJpgOrientation bool,
-	readMode string,
-	compactionMBPerSecond int,
-	fileSizeLimitMB int,
-	concurrentUploadLimit int64,
-	concurrentDownloadLimit int64,
-	inflightUploadDataTimeout time.Duration,
-	hasSlowRead bool,
-	readBufferSizeMB int,
-	ldbTimeout int64,
-) *VolumeServer {
+func NewVolumeServer(adminMux, publicMux *http.ServeMux, ip string, port, grpcPort int, publicUrl string, folders []string, maxCounts []int32, minFreeSpaces []util.MinFreeSpace, diskTypes []types.DiskType, idxFolder string, needleMapKind storage.NeedleMapKind, masterNodes []pb.ServerAddress, pulseSeconds int, dataCenter, rack string, whiteList []string, fixJpgOrientation bool, readMode string, compactionMBPerSecond, fileSizeLimitMB int, concurrentUploadLimit, concurrentDownloadLimit int64, inflightUploadDataTimeout time.Duration, hasSlowRead bool, readBufferSizeMB int, ldbTimeout int64, preallocate bool) *VolumeServer {
 
 	v := util.GetViper()
 	signingKey := v.GetString("jwt.signing.key")
@@ -107,7 +89,7 @@ func NewVolumeServer(adminMux, publicMux *http.ServeMux, ip string,
 
 	vs.checkWithMaster()
 
-	vs.store = storage.NewStore(vs.grpcDialOption, ip, port, grpcPort, publicUrl, folders, maxCounts, minFreeSpaces, idxFolder, vs.needleMapKind, diskTypes, ldbTimeout)
+	vs.store = storage.NewStore(vs.grpcDialOption, ip, port, grpcPort, publicUrl, folders, maxCounts, minFreeSpaces, idxFolder, vs.needleMapKind, diskTypes, ldbTimeout, preallocate)
 	vs.guard = security.NewGuard(whiteList, signingKey, expiresAfterSec, readSigningKey, readExpiresAfterSec)
 
 	handleStaticResources(adminMux)
