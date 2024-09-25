@@ -582,7 +582,7 @@ func (s *Store) MaybeAdjustVolumeMax() (hasChanges bool) {
 			currentMaxVolumeCount := atomic.LoadInt32(&diskLocation.MaxVolumeCount)
 			diskStatus := stats.NewDiskStatus(diskLocation.Directory)
 			unusedSpace := diskLocation.UnUsedSpace(volumeSizeLimit)
-			unclaimedSpaces := int64(diskStatus.Free) - int64(unusedSpace)
+			unclaimedSpaces := int64(diskStatus.Free)
 			volCount := diskLocation.VolumesLen()
 			maxVolumeCount := int32(volCount)
 			if unclaimedSpaces > int64(volumeSizeLimit) {
